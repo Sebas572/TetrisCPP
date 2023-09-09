@@ -1,10 +1,12 @@
 #pragma once
+
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include "./variables.h"
 
 namespace Check {
-	bool Line(std::vector<std::vector<int>> &matrix, int y) {
+	bool line(std::vector<std::vector<int>> &matrix, int y) {
 		bool allEqualToOne = true;
 
 		for (int i = 0; i < matrix.size(); ++i) {
@@ -24,5 +26,22 @@ namespace Check {
 		}
 
 		return true;
+	}
+
+	bool isInsideBorder(int x[], int y[], int left, int right, int down) {
+		bool result = true;
+
+		for (int i = 0; i < 4; ++i) {
+			if(
+				x[i]-left+right <= 0 ||
+				x[i]-left+right >= VARIABLES::DIMENSION-1 ||
+				y[i]+down >= VARIABLES::DIMENSION+1
+			) {
+				result = false;
+				break;
+			}
+		}
+
+		return result;
 	}
 }// namespace Check

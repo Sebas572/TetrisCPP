@@ -7,50 +7,85 @@
 #include "./draw.h"
 #include "./variables.h"
 
+
 namespace Player {
-	std::vector<int> piece(std::vector<int>(4, 0));
-	int y, x = 7;
+	int y[4] = {0, 0, 1, 1};
+	int x[4] = {5, 6, 5, 6};
+
+	void reset() {
+		y[0] = 0;
+		y[1] = 0;
+		y[2] = 1;
+		y[3] = 1;
+		x[0] = 5;
+		x[1] = 6;
+		x[2] = 5;
+		x[3] = 6;
+	}
+
+	bool validateCollicion(int left, int right, int down) {
+		bool result = false;
+	  for (int i = 0; i < 4; ++i) {
+			result = (VARIABLES::matrix[x[i]-left+right][y[i]+down] == 1 || y[i]+down >= VARIABLES::DIMENSION);
+			if(result) break;
+		}
+		return result;
+	}
+
+	void setBlocks() {
+	  for (int i = 0; i < 4; ++i) {
+			VARIABLES::matrix[x[i]][y[i]] = 1;
+	    Check::line(VARIABLES::matrix, y[i]);
+		}
+	}
+
+	void clear() {
+	  for (int i = 0; i < 4; ++i) {
+			VARIABLES::matrix[x[i]][y[i]] = 0;
+		}
+	}
 
 	void setMove(int left, int right, int down) {
-		std::cout << "Es: " << x << "," << y << std::endl;
-	  if(VARIABLES::matrix[x-left+right][y+down] == 1 || y+down >= VARIABLES::DIMENSION) {
-	    VARIABLES::matrix[x][y] = 1;
-	    Check::Line(VARIABLES::matrix, y);
-	    x = 7;
-	    y = 0;
-	    return;
-	  }
+		if(!Check::isInsideBorder(x, y, left, right, down)) return;
 
-	  VARIABLES::matrix[x][y] = 0;
-	  x += -left+right;
-	  y += down;
-	  VARIABLES::matrix[x][y] = 1;
+		Player::clear();
+	  if(validateCollicion(left, right, down)) {
+	  	setBlocks();
+	  	reset();
+	  	return;
+		}
+
+	  for (int i = 0; i < 4; ++i) {
+	  	x[i] += -left+right;
+	  	y[i] += down;
+	  	VARIABLES::matrix[x[i]][y[i]] = 2;
+		}
+
+		system("clear");
+		for (int i = 0; i < 15; ++i) {
+			for (int j = 0; j < 15; ++j) {
+				std::cout << VARIABLES::matrix[j][i] << ", ";
+			}
+			std::cout << std::endl;
+		}
+
+	  Draw::game();
 	}
 
-	void setMoveRight() { 
-	  if(x+1<=VARIABLES::DIMENSION-1) {
-	    setMove(0, 1, 0);
-	    Draw::game();
-	  }
+	void setMoveRight() {
+		setMove(0, 1, 0);
 	}
-	void setMoveLeft() { 
-	  if(x-1>=0){
-	    setMove(1, 0, 0);
-	    Draw::game();
-	  }
+	void setMoveLeft() {
+		setMove(1, 0, 0);
 	}
-	void setMoveDown() { 
-	  if(y+1<=VARIABLES::DIMENSION){
-	    setMove(0, 0, 1);
-	    Draw::game();
-	  }
+	void setMoveDown() {
+		setMove(0, 0, 1);
 	}
 	void setMoveDownT() { 
 	  for (int i = 0; i < VARIABLES::DIMENSION+1; ++i) {
-	    if(i == y) continue;
-	    if(VARIABLES::matrix[x][i] == 1) break;
+	    // if(i == y) continue;
+	    // if(VARIABLES::matrix[x][i] == 1) break;
 	    setMove(0, 0, 1);
-	    Draw::game();
 
 	    usleep(20000);
 	  }

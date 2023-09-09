@@ -29,10 +29,11 @@ namespace Draw {
 	void game() {
 	  Draw::clear();
 
-	  setColor(RGB(0, 255, 0));
 	  for (int i = 0; i < VARIABLES::DIMENSION; i++) {
 	    for (int j = 0; j < VARIABLES::DIMENSION; j++) {
-	      if(VARIABLES::matrix[i][j] == 1) {
+	      if(VARIABLES::matrix[i][j] == 1 || VARIABLES::matrix[i][j] == 2) {
+	  			if (VARIABLES::matrix[i][j] == 1) setColor(RGB(0, 255, 0));
+	  			else setColor(RGB(0, 0, 255));
 	        Draw::rectangle(i+i*40, j+j*40, VARIABLES::BLOCK_WIDTH, VARIABLES::BLOCK_HEIGHT);
 	      }
 	    }
