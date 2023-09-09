@@ -2,6 +2,7 @@
 #include <iostream>
 #include <thread>
 #include "src/events/events.h"
+#include "src/game/start.h"
 #include "src/game/draw.h"
 
 int createWindow() {
@@ -30,7 +31,7 @@ int createWindow() {
   Draw::gc = gc;
   
   std::thread hilo1(Events::start, window, display, wmDeleteMessage, gc);
-  std::thread hilo2(Draw::start);
+  std::thread hilo2(Game::start);
 
   hilo1.join();
   // hilo2.join();

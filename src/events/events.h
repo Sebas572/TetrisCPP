@@ -4,7 +4,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <cstring>
-#include "../game/draw.h"
+#include "../game/player.h"
 
 namespace Events {
 XEvent event;
@@ -28,10 +28,10 @@ void isKeyboard() {
 	KeySym keySym = XLookupKeysym(&Events::event.xkey, 0);
 	std::string key = XKeysymToString(keySym);
 
-	if(key == "a") { Draw::setMoveLeft(); }
-	else if(key == "d") { Draw::setMoveRight(); }
-	else if(key == "s") { Draw::setMoveDown(); }
-	else if(key == "space") {Draw::setMoveDownT(); }
+	if(key == "a") { Player::setMoveLeft(); }
+	else if(key == "d") { Player::setMoveRight(); }
+	else if(key == "s") { Player::setMoveDown(); }
+	else if(key == "space") {Player::setMoveDownT(); }
 }
 
 void start(Window window, Display *display, Atom wmDeleteMessage, GC gc) {
