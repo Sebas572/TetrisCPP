@@ -33,8 +33,8 @@ namespace Check {
 
 		for (int i = 0; i < 4; ++i) {
 			if(
-				x[i]-left+right <= 0 ||
-				x[i]-left+right >= VARIABLES::DIMENSION-1 ||
+				x[i]-left+right < 0 ||
+				x[i]-left+right >= VARIABLES::DIMENSION ||
 				y[i]+down >= VARIABLES::DIMENSION+1
 			) {
 				result = false;
