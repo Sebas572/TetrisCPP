@@ -8,6 +8,7 @@
 namespace Game {
 
 void start() {
+  Player::reset();
   while(1) {
     Player::setMoveDown();
     Draw::game();

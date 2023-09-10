@@ -31,6 +31,7 @@ void isKeyboard() {
 	if(key == "a") { Player::setMoveLeft(); }
 	else if(key == "d") { Player::setMoveRight(); }
 	else if(key == "s") { Player::setMoveDown(); }
+  else if(key == "v") { Player::rotate(); }
 	else if(key == "space") {Player::setMoveDownT(); }
 }
 

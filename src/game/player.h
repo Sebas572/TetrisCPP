@@ -1,94 +1,150 @@
 #pragma once
 
-#include <iostream>
-#include <unistd.h>
-#include <vector>
 #include "./check.h"
 #include "./draw.h"
 #include "./variables.h"
-
+#include <iostream>
+#include <unistd.h>
+#include <vector>
+#include <random>
 
 namespace Player {
-	int y[4] = {0, 0, 1, 1};
-	int x[4] = {5, 6, 5, 6};
+int y[4] = {0, 0, 1, 1};
+int x[4] = {5, 6, 5, 6};
 
-	void reset() {
-		y[0] = 0;
-		y[1] = 0;
-		y[2] = 1;
-		y[3] = 1;
-		x[0] = 5;
-		x[1] = 6;
-		x[2] = 5;
-		x[3] = 6;
-	}
+void clear() {
+  for (int i = 0; i < 4; ++i) {
+    VARIABLES::matrix[x[i]][y[i]] = 0;
+  }
+}
 
-	bool validateCollicion(int left, int right, int down) {
-		bool result = false;
-	  for (int i = 0; i < 4; ++i) {
-			result = (VARIABLES::matrix[x[i]-left+right][y[i]+down] == 1 || y[i]+down >= VARIABLES::DIMENSION);
-			if(result) break;
-		}
-		return result;
-	}
+void assignValues(int *arr, std::initializer_list<int> v) {
+  std::vector<int> values = v;
+  for(int i = 0; i < 4; ++i) {
+    arr[i] = values[i];
+  }
+}
 
-	void setBlocks() {
-	  for (int i = 0; i < 4; ++i) {
-			VARIABLES::matrix[x[i]][y[i]] = 1;
-	    Check::line(VARIABLES::matrix, y[i]);
-		}
-	}
+void OBlock() {
+  assignValues(y,{0,0,1,1});
+  assignValues(x,{5,6,5,6});
+}
+void IBlock() {
+  assignValues(y,{0,0,0,0});
+  assignValues(x,{4,5,6,7});
+}
+void TBlock() {
+  assignValues(y,{0,1,1,1});
+  assignValues(x,{5,4,6,5});
+}
+void SBlock() {
+  assignValues(y,{0,0,1,1});
+  assignValues(x,{6,7,6,5});
+}
+void ZBlock() {
+  assignValues(y,{0,0,1,1});
+  assignValues(x,{5,6,7,6});
+}
+void JBlock() {
+  assignValues(y,{0,1,1,1});
+  assignValues(x,{4,4,6,5});
+}
+void LBlock() {
+  assignValues(y,{0,1,1,1});
+  assignValues(x,{6,6,4,5});
+}
 
-	void clear() {
-	  for (int i = 0; i < 4; ++i) {
-			VARIABLES::matrix[x[i]][y[i]] = 0;
-		}
-	}
+int calcCenter(int arr[4]) {
+  int min = 100, max = -100;
 
-	void setMove(int left, int right, int down) {
-		if(!Check::isInsideBorder(x, y, left, right, down)) return;
+  for (int i = 0; i < 4; ++i) {
+    if(arr[i] < min) {min = arr[i];}
+    else if(arr[i] > max) {max = arr[i];}
+  }
 
-		Player::clear();
-	  if(validateCollicion(left, right, down)) {
-	  	setBlocks();
-	  	reset();
-	  	return;
-		}
+  int result = std::ceil(static_cast<double>(max-min)/2);
+  return result;
+}
 
-	  for (int i = 0; i < 4; ++i) {
-	  	x[i] += -left+right;
-	  	y[i] += down;
-	  	VARIABLES::matrix[x[i]][y[i]] = 2;
-		}
+void rotate() {
+  clear();
+  int center = 0;//calcCenter(x);
+  for (int i = 0; i < 4; ++i) {
+    int diffX = x[i] - x[center];
+    int diffY = y[i] - y[center];
+    
+    y[i] += (diffX+(-diffY));
+    x[i] -= diffX+diffY;
+  }
+  for (int i = 0; i < 4; ++i) {
+    VARIABLES::matrix[x[i]][y[i]] = 2;
+  }
+  Draw::game();
+}
 
-		system("clear");
-		for (int i = 0; i < 15; ++i) {
-			for (int j = 0; j < 15; ++j) {
-				std::cout << VARIABLES::matrix[j][i] << ", ";
-			}
-			std::cout << std::endl;
-		}
+void reset() {
+  int i = rand()%(7-0);
+  if(i == 0) {OBlock();}
+  else if(i == 1) {IBlock();}
+  else if(i == 2) {TBlock();}
+  else if(i == 3) {SBlock();}
+  else if(i == 4) {ZBlock();}
+  else if(i == 5) {JBlock();}
+  else if(i == 6) {LBlock();}
+}
 
-	  Draw::game();
-	}
+bool validateCollicion(int left, int right, int down) {
+  bool result = false;
+  for (int i = 0; i < 4; ++i) {
+    result = (VARIABLES::matrix[x[i] - left + right][y[i] + down] == 1 ||
+              y[i] + down >= VARIABLES::DIMENSION);
+    if (result)
+      break;
+  }
+  return result;
+}
 
-	void setMoveRight() {
-		setMove(0, 1, 0);
-	}
-	void setMoveLeft() {
-		setMove(1, 0, 0);
-	}
-	void setMoveDown() {
-		setMove(0, 0, 1);
-	}
-	void setMoveDownT() { 
-	  for (int i = 0; i < VARIABLES::DIMENSION+1; ++i) {
-	    // if(i == y) continue;
-	    // if(VARIABLES::matrix[x][i] == 1) break;
-	    setMove(0, 0, 1);
+void setBlocks() {
+  for (int i = 0; i < 4; ++i) {
+    VARIABLES::matrix[x[i]][y[i]] = 1;
+    Check::line(VARIABLES::matrix, y[i]);
+  }
+}
 
-	    usleep(20000);
-	  }
-	}
 
-}//namespace Player
+bool setMove(int left, int right, int down) {
+  if (!Check::isInsideBorder(x, y, left, right, down))
+    return true;
+
+  Player::clear();
+  if (validateCollicion(left, right, down)) {
+    setBlocks();
+    reset();
+    Draw::game();
+    return false;
+  }
+
+  for (int i = 0; i < 4; ++i) {
+    x[i] += -left + right;
+    y[i] += down;
+    VARIABLES::matrix[x[i]][y[i]] = 2;
+  }
+
+  Draw::game();
+  return true;
+}
+
+void setMoveRight() { setMove(0, 1, 0); }
+void setMoveLeft() { setMove(1, 0, 0); }
+void setMoveDown() { setMove(0, 0, 1); }
+void setMoveDownT() {
+  for (int i = 0; i < VARIABLES::DIMENSION + 1; ++i) {
+    if (!setMove(0, 0, 1)) {
+      break;
+    }
+
+    usleep(20000);
+  }
+}
+
+} // namespace Player
