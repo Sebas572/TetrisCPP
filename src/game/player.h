@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <vector>
 #include <random>
+#include <bits/stdc++.h>
 
 namespace Player {
 int y[4] = {0, 0, 1, 1};
@@ -31,7 +32,7 @@ void OBlock() {
 }
 void IBlock() {
   assignValues(y,{0,0,0,0});
-  assignValues(x,{4,5,6,7});
+  assignValues(x,{4,6,7,5});
 }
 void TBlock() {
   assignValues(y,{0,1,1,1});
@@ -39,7 +40,7 @@ void TBlock() {
 }
 void SBlock() {
   assignValues(y,{0,0,1,1});
-  assignValues(x,{6,7,6,5});
+  assignValues(x,{6,7,5,6});
 }
 void ZBlock() {
   assignValues(y,{0,0,1,1});
@@ -54,27 +55,32 @@ void LBlock() {
   assignValues(x,{6,6,4,5});
 }
 
-int calcCenter(int arr[4]) {
-  int min = 100, max = -100;
+void moveIfCloseToTheEdges(int x, int y, int newX, int newY) {
+  int positiveX = (x-newX == -1)?1:0;
+  int negativeX = (x-newX == 15)?(-1):0;
+  int negativeY = (y+newY == 15)?(-1):0;
+  
+  if(positiveX == 0 && negativeX == 0 && negativeY == 0) return;
 
   for (int i = 0; i < 4; ++i) {
-    if(arr[i] < min) {min = arr[i];}
-    else if(arr[i] > max) {max = arr[i];}
+    Player::x[i]+= positiveX+negativeX;
+    Player::y[i]+= negativeY;
   }
-
-  int result = std::ceil(static_cast<double>(max-min)/2);
-  return result;
 }
 
 void rotate() {
   clear();
-  int center = 0;//calcCenter(x);
+  int center = 3;
+
+
   for (int i = 0; i < 4; ++i) {
     int diffX = x[i] - x[center];
     int diffY = y[i] - y[center];
     
-    y[i] += (diffX+(-diffY));
-    x[i] -= diffX+diffY;
+    int newX = diffX+diffY, newY = (diffX+(-diffY));
+    moveIfCloseToTheEdges(x[i], y[i], newX, newY);
+    y[i] += newY;
+    x[i] -= newX;
   }
   for (int i = 0; i < 4; ++i) {
     VARIABLES::matrix[x[i]][y[i]] = 2;
