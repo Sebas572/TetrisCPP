@@ -8,6 +8,7 @@ namespace Draw {
 	Window window;
 	Display *display;
 	GC gc;
+	bool isLost = true;
 
 	unsigned long RGB(int r, int g, int b) { return b + (g << 8) + (r << 16); }
 
@@ -27,8 +28,15 @@ namespace Draw {
 	}
 
 	void game() {
-	  Draw::clear();
 
+	  if(Draw::isLost) {
+	  	const char* message = "Perdiste";
+	  	XDrawString(Draw::display, Draw::window, Draw::gc, 50, 100, message, strlen(message));
+
+	  	return;
+	  }
+
+	  Draw::clear();
 	  for (int i = 0; i < VARIABLES::DIMENSION; i++) {
 	    for (int j = 0; j < VARIABLES::DIMENSION; j++) {
 	      if(VARIABLES::matrix[i][j] == 1 || VARIABLES::matrix[i][j] == 2) {

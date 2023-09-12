@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include "./variables.h"
+#include "../audios/audio.h"
 
 namespace Check {
 	bool line(std::vector<std::vector<int>> &matrix, int y) {
@@ -20,7 +21,6 @@ namespace Check {
 
 		for (int i = 14; i >= 0; --i) {
 			for (int j = y; j >= 0; --j) {
-				std::cout << i << ", " << j << std::endl;
 				matrix[i][j] = matrix[i][j-1];
 			}
 		}

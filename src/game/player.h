@@ -7,11 +7,12 @@
 #include <unistd.h>
 #include <vector>
 #include <random>
-#include <bits/stdc++.h>
+#include <cstdlib>
 
 namespace Player {
 int y[4] = {0, 0, 1, 1};
 int x[4] = {5, 6, 5, 6};
+bool isRotated = true;
 
 void clear() {
   for (int i = 0; i < 4; ++i) {
@@ -21,12 +22,12 @@ void clear() {
 
 void assignValues(int *arr, std::initializer_list<int> v) {
   std::vector<int> values = v;
-  for(int i = 0; i < 4; ++i) {
-    arr[i] = values[i];
-  }
+  values.resize(4);
+  std::copy(values.begin(), values.end(), arr);
 }
 
 void OBlock() {
+  isRotated = false;
   assignValues(y,{0,0,1,1});
   assignValues(x,{5,6,5,6});
 }
@@ -55,41 +56,71 @@ void LBlock() {
   assignValues(x,{6,6,4,5});
 }
 
-void moveIfCloseToTheEdges(int x, int y, int newX, int newY) {
-  int positiveX = (x-newX == -1)?1:0;
-  int negativeX = (x-newX == 15)?(-1):0;
-  int negativeY = (y+newY == 15)?(-1):0;
+void moveIfCloseToTheEdges(int x[4], int y[4], int index, int newX, int newY) {
+  int positiveX = (x[index]-newX == -1)?1:0;
+  int negativeX = (x[index]-newX == 15)?(-1):0;
+  int negativeY = (y[index]+newY == 15-1)?(-1):0;
   
   if(positiveX == 0 && negativeX == 0 && negativeY == 0) return;
 
   for (int i = 0; i < 4; ++i) {
-    Player::x[i]+= positiveX+negativeX;
-    Player::y[i]+= negativeY;
+    x[i]+= positiveX+negativeX;
+    y[i]+= negativeY;
   }
 }
 
+
 void rotate() {
-  clear();
-  int center = 3;
+  if(!isRotated) return;
 
+  int XCopy[4], YCopy[4];
+  std::copy(x, x + 4, XCopy);
+  std::copy(y, y + 4, YCopy);
 
+  bool isCollisionWithBlock = false, isMoveUp = false;
   for (int i = 0; i < 4; ++i) {
-    int diffX = x[i] - x[center];
-    int diffY = y[i] - y[center];
+    int diffX = XCopy[i] - XCopy[3];
+    int diffY = YCopy[i] - YCopy[3];
     
     int newX = diffX+diffY, newY = (diffX+(-diffY));
-    moveIfCloseToTheEdges(x[i], y[i], newX, newY);
-    y[i] += newY;
-    x[i] -= newX;
+    moveIfCloseToTheEdges(XCopy, YCopy, i, newX, newY);
+    YCopy[i] += newY;
+    XCopy[i] -= newX;
+
+    if(VARIABLES::matrix[XCopy[i]][YCopy[i]] == 1 || XCopy[i] == -1 || XCopy[i] == 15 ) {
+      isCollisionWithBlock = true;
+    }
   }
+
+  if(isCollisionWithBlock) {
+    isMoveUp = true;
+    for (int i = 0; i < 4; ++i) {
+      if(VARIABLES::matrix[XCopy[i]][YCopy[i]-1] == 1) {
+        isMoveUp = false;
+        break;
+      }
+    }
+  }
+
+  if(isCollisionWithBlock && !isMoveUp) return;
+
+  clear();
+  std::copy(XCopy, XCopy + 4, x);
+  std::copy(YCopy, YCopy + 4, y);
+
   for (int i = 0; i < 4; ++i) {
+    if(isMoveUp) y[i]--;
     VARIABLES::matrix[x[i]][y[i]] = 2;
   }
   Draw::game();
 }
 
 void reset() {
-  int i = rand()%(7-0);
+  srand(time(NULL));
+
+  int i = rand()%7;
+  isRotated = true;
+  
   if(i == 0) {OBlock();}
   else if(i == 1) {IBlock();}
   else if(i == 2) {TBlock();}
@@ -99,10 +130,10 @@ void reset() {
   else if(i == 6) {LBlock();}
 }
 
-bool validateCollicion(int left, int right, int down) {
+bool validateCollicion(int down) {
   bool result = false;
   for (int i = 0; i < 4; ++i) {
-    result = (VARIABLES::matrix[x[i] - left + right][y[i] + down] == 1 ||
+    result = (VARIABLES::matrix[x[i]][y[i] + down] == 1 ||
               y[i] + down >= VARIABLES::DIMENSION);
     if (result)
       break;
@@ -123,15 +154,24 @@ bool setMove(int left, int right, int down) {
     return true;
 
   Player::clear();
-  if (validateCollicion(left, right, down)) {
+  if (validateCollicion(down)) {
     setBlocks();
     reset();
     Draw::game();
     return false;
   }
 
+  bool move = true;
+
   for (int i = 0; i < 4; ++i) {
-    x[i] += -left + right;
+    if(VARIABLES::matrix[x[i]-left+right][y[i]] == 1) {
+      move = false;
+      break;
+    }
+  }
+
+  for (int i = 0; i < 4; ++i) {
+    if(move) x[i] += -left + right;
     y[i] += down;
     VARIABLES::matrix[x[i]][y[i]] = 2;
   }

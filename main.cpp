@@ -30,6 +30,7 @@ int createWindow() {
   Draw::display = display;
   Draw::gc = gc;
   
+  XInitThreads();
   std::thread hilo1(Events::start, window, display, wmDeleteMessage, gc);
   std::thread hilo2(Game::start);
 
