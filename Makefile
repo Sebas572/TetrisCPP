@@ -3,7 +3,7 @@ compile:
 		mkdir out; \
 	fi
 
-	g++ -o ./out/Tetris.out main.cpp -lX11 -pthread
+	g++ -o ./out/Tetris.out main.cpp -lX11 -pthread -lXft -I /usr/include/freetype2
 
 run: compile
 	./out/Tetris.out

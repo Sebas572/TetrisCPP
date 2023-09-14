@@ -144,7 +144,7 @@ bool validateCollicion(int down) {
 void setBlocks() {
   for (int i = 0; i < 4; ++i) {
     VARIABLES::matrix[x[i]][y[i]] = 1;
-    Check::line(VARIABLES::matrix, y[i]);
+    Check::line(y[i]);
   }
 }
 
